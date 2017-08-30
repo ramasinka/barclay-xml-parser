@@ -43,22 +43,46 @@ public class XmlParserService {
         rootElement.setName(rootElementName);
         String rootContent = getElementContent(rootElementName, charArray);
 
-        if(rootContent.length() != 0){
-            getElementChilds(rootContent);
+        if (rootContent.length() != 0) {
+            Element elementChild = new Element();
+            List<String> childElementsByContent = getElementsByContent(rootContent);
+            for (String childContent: childElementsByContent) {
+                if (getElementsByContent(childContent).size() != 0) {
+                    elementParser(childContent);
+                } else {
+                  /*  String[] splitElementName = childContent.split("/");
+                    if(splitElementName[0].equals(splitElementName[1])){
+                        elementChild.setName(splitElementName[0]);
+                        elements.add(elementChild);
+                    }*/
+                }
+            }
         }
-
-
+        rootElement.setElementList(elements);
+        System.out.println(elements);
         System.out.println(rootElementName);
 
     }
 
-    private void getElementChilds(String rootContent) {
+    private List<String> getElementsByContent(String rootContent) {
+       List<String> names = new ArrayList<String>();
+        String elementName = "";
         char[] charArray = rootContent.toCharArray();
         for (int i = 0; i < charArray.length; i++) {
-            if(charArray[i] == '<'){
-
+            if (charArray[i] == '<') {
+                for (int j = i + 1; j < charArray.length; j++) {
+                    if (charArray[j] != '>') {
+                        elementName = elementName + charArray[j];
+                    }
+                    if(charArray[j] == '>'){
+                        names.add(elementName);
+                        elementName = "";
+                        break;
+                    }
+                }
             }
         }
+        return names;
     }
 
     private String getElementContent(String rootElementName, char[] charArray) {
@@ -86,36 +110,4 @@ public class XmlParserService {
         }
         return rootElementName;
     }
-
-    private String getElementName(String elementName, char c) {
-        if (c != '>') {
-            elementName = elementName + c;
-        }
-        return elementName;
-    }
-
-    private String getElementChild(Element element) {
-        String elementName = element.getName();
-        StringBuilder childElementName = new StringBuilder();
-        char[] charArray = elementName.toCharArray();
-        for (int i = 0; i < charArray.length; i++) {
-            if (charArray[i] != '>') {
-                childElementName.append(charArray[i]);
-            }
-        }
-        return childElementName.toString();
-    }
-
-
-    private Element getElement(char ch) {
-        Element element = new Element();
-        StringBuilder elementNameBuilder = new StringBuilder();
-        if (ch != '>') {
-            elementNameBuilder.append(ch);
-        }
-        element.setName(elementNameBuilder.toString());
-        return element;
-    }
-
-
 }
