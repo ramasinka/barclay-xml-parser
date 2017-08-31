@@ -71,7 +71,6 @@ public class XmlParserService {
                     if (charArray[j] != '>') {
                         elementName = elementName + charArray[j];
                     } else {
-
                         if (!elementName.contains("/")) {
                             if (elementContent.contains("/" + elementName)) {
                                 if (childContent.contains(elementName)) {
@@ -89,6 +88,11 @@ public class XmlParserService {
                             }
 
                         } else {
+                           /* if(elementName.substring(elementName.length() - 1).equals("/")){
+                                Element element = new Element();
+                                element.setName(elementName);
+                                childElements.add(element);
+                            }*/
                             elementName = "";
                         }
                         break;

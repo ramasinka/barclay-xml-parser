@@ -2,6 +2,7 @@ package service;
 
 import data.Element;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -77,5 +78,13 @@ public class XmlParserServiceTest {
         List<Element> elements = xmlParserService.getElements();
         Element element = elements.get(0);
         assertEquals("root", element.getName());
+    }
+
+    @Test
+    @Ignore("TODO implementing <element/>")
+    public void shouldParseXml(){
+        xmlParserService.parseXmlFile(new File("src/test/java/service/xml/correct"));
+        List<Element> elements = xmlParserService.getElements();
+        assertEquals(4, elements.size());
     }
 }
