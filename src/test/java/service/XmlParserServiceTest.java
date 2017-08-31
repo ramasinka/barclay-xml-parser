@@ -3,12 +3,13 @@ package service;
 import data.Element;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-
 public class XmlParserServiceTest {
 
     private XmlParserService xmlParserService;
@@ -20,7 +21,7 @@ public class XmlParserServiceTest {
 
     @Test
     public void shouldParseXmlWithOneRoot() {
-        xmlParserService.handleFile(new File("C:\\Users\\CodeAcademy\\IdeaProjects\\Romas Noreika\\codeacademy-xmlparser\\src\\test\\java\\service\\xml\\correct_one_element"));
+        xmlParserService.parseXmlFile(new File("src/test/java/service/xml/correct_one_element"));
         List<Element> elements = xmlParserService.getElements();
         String elementName = elements.get(0).getName();
         assertEquals("root", elementName);
@@ -28,7 +29,7 @@ public class XmlParserServiceTest {
 
     @Test
     public void shouldParseXmlWithTwoRoots() {
-        xmlParserService.handleFile(new File("C:\\Users\\CodeAcademy\\IdeaProjects\\Romas Noreika\\codeacademy-xmlparser\\src\\test\\java\\service\\xml\\correct_two_elements"));
+        xmlParserService.parseXmlFile(new File("src/test/java/service/xml/correct_two_elements"));
         List<Element> elements = xmlParserService.getElements();
         String firstElementName = elements.get(0).getName();
         String secondElementName = elements.get(1).getName();
@@ -39,7 +40,7 @@ public class XmlParserServiceTest {
 
     @Test
     public void shouldParseXmlWithChildElement() {
-        xmlParserService.handleFile(new File("C:\\Users\\CodeAcademy\\IdeaProjects\\Romas Noreika\\codeacademy-xmlparser\\src\\test\\java\\service\\xml\\correct_child_elements"));
+        xmlParserService.parseXmlFile(new File("src/test/java/service/xml/correct_child_elements"));
         List<Element> elements = xmlParserService.getElements();
 
         String rootElement = elements.get(0).getName();
@@ -58,5 +59,16 @@ public class XmlParserServiceTest {
         Element element = elements.get(1);
         Element childElement = element.getElementList().get(0);
         assertEquals("child",childElement.getName());
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void throwExceptionThenElementNotClosed(){
+        try{
+            xmlParserService.parseXmlFile(new File("src/test/java/service/xml/wrong_element_not_closed"));
+        }catch (RuntimeException ex){
+            String expectedMessage = "Element with name: test must be closed";
+            assertEquals(expectedMessage, ex.getMessage());
+            throw ex;
+        }
     }
 }
