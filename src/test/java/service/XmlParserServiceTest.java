@@ -3,13 +3,12 @@ package service;
 import data.Element;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+
 public class XmlParserServiceTest {
 
     private XmlParserService xmlParserService;
@@ -58,17 +57,25 @@ public class XmlParserServiceTest {
 
         Element element = elements.get(1);
         Element childElement = element.getElementList().get(0);
-        assertEquals("child",childElement.getName());
+        assertEquals("child", childElement.getName());
     }
 
     @Test(expected = RuntimeException.class)
-    public void throwExceptionThenElementNotClosed(){
-        try{
+    public void throwExceptionThenElementNotClosed() {
+        try {
             xmlParserService.parseXmlFile(new File("src/test/java/service/xml/wrong_element_not_closed"));
-        }catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             String expectedMessage = "Element with name: test must be closed";
             assertEquals(expectedMessage, ex.getMessage());
             throw ex;
         }
+    }
+
+    @Test
+    public void shouldParseElementWithCloseTag() {
+        xmlParserService.parseXmlFile(new File("src/test/java/service/xml/correct_close_element"));
+        List<Element> elements = xmlParserService.getElements();
+        Element element = elements.get(0);
+        assertEquals("root", element.getName());
     }
 }

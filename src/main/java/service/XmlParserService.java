@@ -43,11 +43,17 @@ public class XmlParserService {
         elements.add(element);
         if (elementName != null) {
             String elementContent = getElementContent(elementName, contentCharArray);
-            List<Element> childElements = getChildElements(elementContent);
-            if (!childElements.isEmpty()) {
-                element.setElementList(childElements);
-                for (Element el : childElements) {
-                    parseXmlElements(content, el);
+            String lastCharacter = elementName.substring(elementName.length() - 1);
+            if (lastCharacter.equals("/")) {
+                element.setName(elementName.replace("/", ""));
+            }
+            if (elementContent.length() != 0) {
+                List<Element> childElements = getChildElements(elementContent);
+                if (!childElements.isEmpty()) {
+                    element.setElementList(childElements);
+                    for (Element el : childElements) {
+                        parseXmlElements(content, el);
+                    }
                 }
             }
         }
@@ -101,9 +107,13 @@ public class XmlParserService {
 
     private String getElementContent(String elementName, char[] charArray) {
         String elements = String.valueOf(charArray);
+        String elementContent = "";
         String tagOpenPrefix = "<" + elementName + ">";
         String tagCloseSuffix = "</" + elementName + ">";
-        String elementContent = elements.substring(elements.indexOf(tagOpenPrefix) + tagOpenPrefix.length(), elements.indexOf(tagCloseSuffix));
+        if (!elements.contains(tagCloseSuffix) && elements.contains(tagOpenPrefix) && elementName.substring(elementName.length() - 1).equals("/")) {
+            return "";
+        }
+        elementContent = elements.substring(elements.indexOf(tagOpenPrefix) + tagOpenPrefix.length(), elements.indexOf(tagCloseSuffix));
         return elementContent;
     }
 
