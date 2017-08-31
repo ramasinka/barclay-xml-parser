@@ -33,7 +33,7 @@ public class XmlParserService {
         }
     }
 
-    private void handleElementParser(String content, Element rootElement) {
+    private List<Element> handleElementParser(String content, Element rootElement) {
         char[] charArray = content.toCharArray();
         if (rootElement == null) {
             rootElement = createRootElement(content);
@@ -50,6 +50,7 @@ public class XmlParserService {
                 }
             }
         }
+        return elements;
     }
 
     private List<Element> getChildRootElements(String rootContent) {
@@ -99,5 +100,13 @@ public class XmlParserService {
         String elementName = content.substring(content.indexOf("<") + 1, content.indexOf(">"));
         element.setName(elementName);
         return element;
+    }
+
+    public List<Element> getElements() {
+        return elements;
+    }
+
+    public void setElements(List<Element> elements) {
+        this.elements = elements;
     }
 }
