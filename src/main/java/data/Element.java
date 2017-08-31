@@ -21,4 +21,12 @@ public class Element {
     public void setElementList(List<Element> elementList) {
         this.elementList = elementList;
     }
+
+    @Override
+    public String toString() {
+        return "Element{" +
+                "name='" + name + '\'' +
+                ", elementList=" + elementList +
+                '}';
+    }
 }

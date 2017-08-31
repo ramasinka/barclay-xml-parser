@@ -27,46 +27,35 @@ public class XmlParserService {
                 char ch = (char) c;
                 builder.append(ch);
             }
-            elementParser(builder.toString());
+            handleElementParser(builder.toString(), null);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void elementParser(String content) {
+    private void handleElementParser(String content, Element rootElement) {
         char[] charArray = content.toCharArray();
-        String rootElementName = "";
-        String elementName = "";
-
-        rootElementName = getElement(rootElementName, charArray);
-        Element rootElement = new Element();
-        rootElement.setName(rootElementName);
-        String rootContent = getElementContent(rootElementName, charArray);
-
-        if (rootContent.length() != 0) {
-            Element elementChild = new Element();
-            List<String> childElementsByContent = getElementsByContent(rootContent);
-            for (String childContent: childElementsByContent) {
-                if (getElementsByContent(childContent).size() != 0) {
-                    elementParser(childContent);
-                } else {
-                  /*  String[] splitElementName = childContent.split("/");
-                    if(splitElementName[0].equals(splitElementName[1])){
-                        elementChild.setName(splitElementName[0]);
-                        elements.add(elementChild);
-                    }*/
+        if (rootElement == null) {
+            rootElement = createRootElement(content);
+        }
+        String rootElementName = rootElement.getName();
+        elements.add(rootElement);
+        if (rootElementName != null) {
+            String rootContent = getElementContent(rootElementName, charArray);
+            List<Element> childRootElements = getChildRootElements(rootContent);
+            if (childRootElements.size() != 0) {
+                rootElement.setElementList(childRootElements);
+                for (Element element : childRootElements) {
+                    handleElementParser(content, element);
                 }
             }
         }
-        rootElement.setElementList(elements);
-        System.out.println(elements);
-        System.out.println(rootElementName);
-
     }
 
-    private List<String> getElementsByContent(String rootContent) {
-       List<String> names = new ArrayList<String>();
+    private List<Element> getChildRootElements(String rootContent) {
+        List<Element> childElements = new ArrayList<Element>();
         String elementName = "";
+        String childContent = "";
         char[] charArray = rootContent.toCharArray();
         for (int i = 0; i < charArray.length; i++) {
             if (charArray[i] == '<') {
@@ -74,40 +63,41 @@ public class XmlParserService {
                     if (charArray[j] != '>') {
                         elementName = elementName + charArray[j];
                     }
-                    if(charArray[j] == '>'){
-                        names.add(elementName);
-                        elementName = "";
+                    if (charArray[j] == '>') {
+                        if (!elementName.contains("/") && rootContent.contains("/" + elementName)) {
+                            if (childContent.contains(elementName)) {
+                                elementName = "";
+                                break;
+                            } else {
+                                childContent = getElementContent(elementName, charArray);
+                                Element element = new Element();
+                                element.setName(elementName);
+                                childElements.add(element);
+                                elementName = "";
+                            }
+                        } else {
+                            elementName = "";
+                        }
                         break;
                     }
                 }
             }
         }
-        return names;
+        return childElements;
     }
 
     private String getElementContent(String rootElementName, char[] charArray) {
         String elements = String.valueOf(charArray);
-        String content = "";
         String tagOpenPrefix = "<" + rootElementName + ">";
         String tagCloseSuffix = "</" + rootElementName + ">";
-        if (elements.startsWith(tagOpenPrefix) && elements.endsWith(tagCloseSuffix)) {
-            content = elements.replace(tagOpenPrefix, "");
-            content = content.replace(tagCloseSuffix, "");
-        }
-        return content;
+        String result = elements.substring(elements.indexOf(tagOpenPrefix) + tagOpenPrefix.length(), elements.indexOf(tagCloseSuffix));
+        return result;
     }
 
-    private String getElement(String rootElementName, char[] chars) {
-        if (chars[0] == '<') {
-            for (int i = 1; i < chars.length; i++) {
-                char ch = chars[i];
-                if (ch != '>') {
-                    rootElementName = rootElementName + ch;
-                } else {
-                    break;
-                }
-            }
-        }
-        return rootElementName;
+    private Element createRootElement(String content) {
+        Element element = new Element();
+        String elementName = content.substring(content.indexOf("<") + 1, content.indexOf(">"));
+        element.setName(elementName);
+        return element;
     }
 }
